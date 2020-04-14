@@ -1,0 +1,9 @@
+enum KushkiEnvironment {
+  TESTING,
+  QA,
+  CI,
+  STAGING,
+  PRODUCTION,
+  UAT_REGIONAL,
+  PRODUCTION_REGIONAL
+}
