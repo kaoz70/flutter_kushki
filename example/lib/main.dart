@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_credit_card/credit_card_model.dart';
 import 'dart:async';
 
+import 'package:flutter_credit_card/flutter_credit_card.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_kushki/flutter_kushki.dart';
+import 'package:flutter_kushki/kushki.dart';
 import 'package:flutter_kushki/Card.dart';
 import 'package:flutter_kushki/environments.dart';
 
@@ -14,7 +16,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  FlutterKushki kushki;
+  Kushki kushki;
   String _platformVersion = 'Unknown';
 
   @override
@@ -28,7 +30,7 @@ class _MyAppState extends State<MyApp> {
     String platformVersion;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
-      kushki = new FlutterKushki(
+      kushki = new Kushki(
           publicMerchantId: '',
           currency: 'USD',
           environment: KushkiEnvironment.TESTING,
@@ -58,21 +60,21 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            children: <Widget>[
-              Text('Running on: $_platformVersion\n'),
-              Form(kushki: kushki,),
-            ],
-          ),
+        body: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text('Running on: $_platformVersion\n'),
+            Expanded(child: Form(kushki: kushki,)),
+          ],
         ),
+        //body: Form(kushki: kushki,),
       ),
     );
   }
 }
 
 class Form extends StatefulWidget {
-  final FlutterKushki kushki;
+  final Kushki kushki;
 
   const Form({Key key, this.kushki}) : super(key: key);
 
@@ -81,16 +83,12 @@ class Form extends StatefulWidget {
 }
 
 class _FormState extends State<Form> {
-  final FlutterKushki kushki;
+  final Kushki kushki;
 
   final _card = KushkiCard();
-  TextEditingController _nameController;
-  TextEditingController _numberController;
-  TextEditingController _cvvController;
-  TextEditingController _monthController;
-  TextEditingController _yearController;
-  TextEditingController _totalAmountController;
   _FormState(this.kushki);
+
+  bool isCvvFocused = false;
 
   @override
   void initState() {
@@ -102,20 +100,6 @@ class _FormState extends State<Form> {
     _card.expiryMonth = '07';
     _card.expiryYear = '21';
     _card.totalAmount = 30.52;
-
-    _nameController = TextEditingController(text: _card.name);
-    _numberController = TextEditingController(text: _card.number);
-    _cvvController = TextEditingController(text: _card.cvv);
-    _monthController = TextEditingController(text: _card.expiryMonth);
-    _yearController = TextEditingController(text: _card.expiryYear);
-    _totalAmountController = TextEditingController(text: _card.totalAmount.toString());
-
-    _nameController.addListener(() => _card.name = _nameController.text.trim());
-    _numberController.addListener(() => _card.number = _numberController.text.trim());
-    _cvvController.addListener(() => _card.cvv = _cvvController.text.trim());
-    _monthController.addListener(() => _card.expiryMonth = _monthController.text.trim());
-    _yearController.addListener(() => _card.expiryYear = _yearController.text.trim());
-    _totalAmountController.addListener(() => _card.totalAmount = double.parse(_totalAmountController.text.trim()));
   }
 
   @override
@@ -123,86 +107,56 @@ class _FormState extends State<Form> {
     return Column(
       children: <Widget>[
         kushki.isInitialized ? Text('Kushki is initialized') : Text('Kushki is not initialized'),
-        TextFormField(
-          decoration: InputDecoration(labelText: 'Name'),
-          controller: _nameController,
-          validator: (value) {
-            if (value.isEmpty) {
-              return 'This field is required';
-            }
-            return null;
-          },
+        CreditCardWidget(
+          cardNumber: _card.number,
+          expiryDate: '${_card.expiryMonth}/${_card.expiryYear}',
+          cardHolderName: _card.name,
+          cvvCode: _card.cvv,
+          showBackView: isCvvFocused, //true when you want to show cvv(back) view
         ),
-        TextFormField(
-          decoration: InputDecoration(labelText: 'Number'),
-          controller: _numberController,
-          validator: (value) {
-            if (value.isEmpty) {
-              return 'This field is required';
-            }
-            return null;
-          },
-        ),
-        TextFormField(
-          decoration: InputDecoration(labelText: 'CVV'),
-          controller: _cvvController,
-          obscureText: true,
-          validator: (value) {
-            if (value.isEmpty) {
-              return 'This field is required';
-            }
-            return null;
-          },
-        ),
-        TextFormField(
-          decoration: InputDecoration(labelText: 'Month'),
-          controller: _monthController,
-          validator: (value) {
-            if (value.isEmpty) {
-              return 'This field is required';
-            }
-            return null;
-          },
-        ),
-        TextFormField(
-          decoration: InputDecoration(labelText: 'Year'),
-          controller: _yearController,
-          validator: (value) {
-            if (value.isEmpty) {
-              return 'This field is required';
-            }
-            return null;
-          },
-        ),
-        TextFormField(
-          decoration: InputDecoration(labelText: 'Ammount'),
-          controller: _totalAmountController,
-          keyboardType: TextInputType.number,
-          validator: (value) {
-            if (value.isEmpty) {
-              return 'This field is required';
-            }
-            return null;
-          },
+        Expanded(
+          child: SingleChildScrollView(
+            child: CreditCardForm(
+              onCreditCardModelChange: onCreditCardModelChange,
+            ),
+          ),
         ),
         MaterialButton(
+          color: Colors.blueAccent,
           child: Text('Submit'),
           onPressed: () async {
             try {
               final transaction = await kushki.requestToken(_card);
               print(transaction);
-            } catch (e) {
+            } on PlatformException catch (e) {
               print(e.toString());
               Scaffold.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(e.toString()),
+                  content: Text(e.message),
                   backgroundColor: Colors.red,
                 ),
               );
             }
           },
-        )
+        ),
       ],
     );
+  }
+
+  void onCreditCardModelChange(CreditCardModel creditCardModel) {
+    final String date = creditCardModel.expiryDate;
+    final dates = date.split('/');
+
+    setState(() {
+      _card.number = creditCardModel.cardNumber;
+
+      if (dates.length == 2) {
+        _card.expiryMonth = dates[0];
+        _card.expiryYear = dates[1];
+      }
+      _card.name = creditCardModel.cardHolderName;
+      _card.cvv = creditCardModel.cvvCode;
+      isCvvFocused = creditCardModel.isCvvFocused;
+    });
   }
 }

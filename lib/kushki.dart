@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'Card.dart';
 import 'environments.dart';
 
-class FlutterKushki {
+class Kushki {
   static const MethodChannel _channel = const MethodChannel('flutter_kushki');
   final String publicMerchantId;
   final String currency;
@@ -13,7 +13,7 @@ class FlutterKushki {
   final bool regional;
   bool isInitialized = false;
 
-  FlutterKushki({
+  Kushki({
     this.publicMerchantId,
     this.currency,
     this.environment,
@@ -37,8 +37,7 @@ class FlutterKushki {
   }
 
   Future<Map<String, dynamic>> requestToken(KushkiCard card) async {
-    final Map<String, dynamic> transaction = await _channel.invokeMethod('requestToken', card.toMap());
-    return transaction;
+    return await _channel.invokeMethod('requestToken', card.toMap());
   }
 
   Future<String> get platformVersion async {
