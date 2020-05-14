@@ -66,33 +66,35 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Kushki example app'),
         ),
-        body: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16),
-              child: TextFormField(
-                decoration: InputDecoration(labelText: 'Merchant ID'),
-                controller: _merchantIdController,
-                validator: (value) {
-                  if (value.isEmpty) {
-                    return "Please input your Kushki's Merchant ID";
-                  }
-                  return null;
+        body: SingleChildScrollView(
+          child: Column(
+            //mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(left: 16, right: 16),
+                child: TextFormField(
+                  decoration: InputDecoration(labelText: 'Merchant ID'),
+                  controller: _merchantIdController,
+                  validator: (value) {
+                    if (value.isEmpty) {
+                      return "Please input your Kushki's Merchant ID";
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              MaterialButton(
+                color: Colors.blueAccent,
+                child: Text('Set ID'),
+                onPressed: () async {
+                  initKushki(context);
                 },
               ),
-            ),
-            MaterialButton(
-              color: Colors.blueAccent,
-              child: Text('Set ID'),
-              onPressed: () async {
-                initKushki(context);
-              },
-            ),
-            _errorMessage != null ? Text(_errorMessage) : Container(),
-            _kushki != null ? Text('Running on: $_platformVersion\n') : Container(),
-            _kushki != null ? Expanded(child: Form(kushki: _kushki,)) : Container(),
-          ],
+              _errorMessage != null ? Text(_errorMessage) : Container(),
+              _kushki != null ? Text('Running on: $_platformVersion\n') : Container(),
+              _kushki != null ? Form(kushki: _kushki,) : Container(),
+            ],
+          ),
         ),
         //body: Form(kushki: kushki,),
       ),
@@ -112,6 +114,7 @@ class Form extends StatefulWidget {
 class _FormState extends State<Form> {
   final _card = KushkiCard();
   _FormState();
+  String _cardToken;
 
   bool isCvvFocused = false;
 
@@ -139,19 +142,18 @@ class _FormState extends State<Form> {
           cvvCode: _card.cvv,
           showBackView: isCvvFocused, //true when you want to show cvv(back) view
         ),
-        Expanded(
-          child: SingleChildScrollView(
-            child: CreditCardForm(
-              onCreditCardModelChange: onCreditCardModelChange,
-            ),
-          ),
+        CreditCardForm(
+          onCreditCardModelChange: onCreditCardModelChange,
         ),
         MaterialButton(
           color: Colors.blueAccent,
-          child: Text('Submit'),
+          child: Text('Get the card token'),
           onPressed: () async {
             try {
               final String token = await widget.kushki.requestToken(_card);
+              setState(() {
+                _cardToken = token;
+              });
               Scaffold.of(context).showSnackBar(
                 SnackBar(
                   content: Text("Token: $token"),
@@ -168,6 +170,10 @@ class _FormState extends State<Form> {
               );
             }
           },
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(_cardToken ?? 'Here goes the card token'),
         ),
       ],
     );
