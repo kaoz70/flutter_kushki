@@ -52,7 +52,7 @@ public class FlutterKushkiPlugin implements FlutterPlugin, MethodCallHandler {
         result.success(true);
       } catch (Exception e) {
         System.out.println(e.getMessage());
-        result.error("init_error", e.getMessage(), null);
+        result.error("init_error", e.getMessage(), call.arguments);
       }
     } else if (call.method.equals("getPlatformVersion")) {
       result.success("Android " + android.os.Build.VERSION.RELEASE);
@@ -78,9 +78,9 @@ public class FlutterKushkiPlugin implements FlutterPlugin, MethodCallHandler {
     KushkiEnvironment environment = KushkiEnvironment.valueOf(Objects.requireNonNull(call.argument("environment")).toString());
     Boolean regional = call.argument("regional");
 
-    if (publicMerchantId == null) {
+    if (publicMerchantId == null || publicMerchantId.equals("")) {
       throw new Exception("'publicMerchantId' is required");
-    } else if (currency == null) {
+    } else if (currency == null || currency.equals("")) {
       throw new Exception("'currency' is required");
     } else if (regional == null) {
       throw new Exception("'regional' is required");
@@ -97,15 +97,15 @@ public class FlutterKushkiPlugin implements FlutterPlugin, MethodCallHandler {
     final String expiryYear = call.argument("expiryYear");
     final Double totalAmount = call.argument("totalAmount");
 
-    if (name == null) {
+    if (name == null || name.equals("")) {
       throw new Exception("'name' is required");
-    } else if (number == null) {
+    } else if (number == null || number.equals("")) {
       throw new Exception("'number' is required");
-    } else if (cvv == null) {
+    } else if (cvv == null || cvv.equals("")) {
       throw new Exception("'cvv' is required");
-    } else if (expiryMonth == null) {
+    } else if (expiryMonth == null || expiryMonth.equals("")) {
       throw new Exception("'expiryMonth' is required");
-    } else if (expiryYear == null) {
+    } else if (expiryYear == null || expiryYear.equals("")) {
       throw new Exception("'expiryYear' is required");
     } else if (totalAmount == null) {
       throw new Exception("'totalAmount' is required");

@@ -6,6 +6,9 @@ import com.kushkipagos.android.Card;
 import com.kushkipagos.android.Kushki;
 import com.kushkipagos.android.Transaction;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import io.flutter.plugin.common.MethodChannel;
 
 public class GetToken extends AsyncTask<Card , Integer, Transaction> {
@@ -34,7 +37,11 @@ public class GetToken extends AsyncTask<Card , Integer, Transaction> {
         if (transaction == null) {
             result.error("error", exception.toString(), null);
         } else {
-            result.success(transaction);
+            if (!transaction.isSuccessful()) {
+                result.error("error", transaction.getMessage(), null);
+            } else {
+                result.success(transaction.getToken());
+            }
         }
     }
 }

@@ -36,7 +36,7 @@ class Kushki {
     return isInitialized;
   }
 
-  Future<Map<String, dynamic>> requestToken(KushkiCard card) async {
+  Future<String> requestToken(KushkiCard card) async {
     return await _channel.invokeMethod('requestToken', card.toMap());
   }
 

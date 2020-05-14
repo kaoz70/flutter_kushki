@@ -16,31 +16,37 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  Kushki kushki;
+  Kushki _kushki;
   String _platformVersion = 'Unknown';
+  String _errorMessage;
+  TextEditingController _merchantIdController;
+
 
   @override
   void initState() {
     super.initState();
-    initPlatformState();
+    _merchantIdController = TextEditingController();
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
+  Future<void> initKushki(BuildContext context) async {
     String platformVersion;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
-      kushki = new Kushki(
-          publicMerchantId: '',
+      _errorMessage = null;
+      _kushki = new Kushki(
+          publicMerchantId: _merchantIdController.text,
           currency: 'USD',
           environment: KushkiEnvironment.TESTING,
           regional: false
       );
 
-      await kushki.init;
-      platformVersion = await kushki.platformVersion;
-    } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
+      await _kushki.init;
+      platformVersion = await _kushki.platformVersion;
+    } on PlatformException catch (e) {
+      print(e);
+      _kushki = null;
+      _errorMessage = e.message;
     }
 
     // If the widget was removed from the tree while the asynchronous platform
@@ -58,13 +64,34 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Plugin example app'),
+          title: const Text('Kushki example app'),
         ),
         body: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Text('Running on: $_platformVersion\n'),
-            Expanded(child: Form(kushki: kushki,)),
+            Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16),
+              child: TextFormField(
+                decoration: InputDecoration(labelText: 'Merchant ID'),
+                controller: _merchantIdController,
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return "Please input your Kushki's Merchant ID";
+                  }
+                  return null;
+                },
+              ),
+            ),
+            MaterialButton(
+              color: Colors.blueAccent,
+              child: Text('Set ID'),
+              onPressed: () async {
+                initKushki(context);
+              },
+            ),
+            _errorMessage != null ? Text(_errorMessage) : Container(),
+            _kushki != null ? Text('Running on: $_platformVersion\n') : Container(),
+            _kushki != null ? Expanded(child: Form(kushki: _kushki,)) : Container(),
           ],
         ),
         //body: Form(kushki: kushki,),
@@ -79,14 +106,12 @@ class Form extends StatefulWidget {
   const Form({Key key, this.kushki}) : super(key: key);
 
   @override
-  _FormState createState() => _FormState(kushki);
+  _FormState createState() => _FormState();
 }
 
 class _FormState extends State<Form> {
-  final Kushki kushki;
-
   final _card = KushkiCard();
-  _FormState(this.kushki);
+  _FormState();
 
   bool isCvvFocused = false;
 
@@ -106,7 +131,7 @@ class _FormState extends State<Form> {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        kushki.isInitialized ? Text('Kushki is initialized') : Text('Kushki is not initialized'),
+        widget.kushki.isInitialized ? Text('Kushki is initialized') : Text('Kushki is not initialized'),
         CreditCardWidget(
           cardNumber: _card.number,
           expiryDate: '${_card.expiryMonth}/${_card.expiryYear}',
@@ -126,8 +151,13 @@ class _FormState extends State<Form> {
           child: Text('Submit'),
           onPressed: () async {
             try {
-              final transaction = await kushki.requestToken(_card);
-              print(transaction);
+              final String token = await widget.kushki.requestToken(_card);
+              Scaffold.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("Token: $token"),
+                  backgroundColor: Colors.blue,
+                ),
+              );
             } on PlatformException catch (e) {
               print(e.toString());
               Scaffold.of(context).showSnackBar(
