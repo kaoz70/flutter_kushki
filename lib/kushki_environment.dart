@@ -1,3 +1,5 @@
+/// Different Kushki environments, usually you would only need to use
+/// TESTING and PRODUCTION
 enum KushkiEnvironment {
   TESTING,
   QA,

@@ -1,3 +1,8 @@
+## 0.0.4
+
+* File format changes
+* Added some documentation to the methods and classes
+
 ## 0.0.3
 
 * Changed this project from a plugin to a package

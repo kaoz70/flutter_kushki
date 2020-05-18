@@ -24,6 +24,7 @@ class _MyAppState extends State<MyApp> {
     _merchantIdController = TextEditingController();
   }
 
+  // Create the Kushki class instance
   Future<void> initKushki(BuildContext context) async {
     setState(() {
       _kushki = new Kushki(
@@ -43,7 +44,6 @@ class _MyAppState extends State<MyApp> {
         ),
         body: SingleChildScrollView(
           child: Column(
-            //mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.only(left: 16, right: 16),
@@ -65,7 +65,11 @@ class _MyAppState extends State<MyApp> {
                   initKushki(context);
                 },
               ),
-              _kushki != null ? Form(kushki: _kushki,) : Container(),
+              _kushki != null
+                  ? Form(
+                      kushki: _kushki,
+                    )
+                  : Container(),
             ],
           ),
         ),
@@ -111,7 +115,8 @@ class _FormState extends State<Form> {
           expiryDate: '${_card.expiryMonth}/${_card.expiryYear}',
           cardHolderName: _card.name,
           cvvCode: _card.cvv,
-          showBackView: isCvvFocused, //true when you want to show cvv(back) view
+          showBackView:
+              isCvvFocused, //true when you want to show cvv(back) view
         ),
         CreditCardForm(
           onCreditCardModelChange: onCreditCardModelChange,
@@ -121,7 +126,8 @@ class _FormState extends State<Form> {
           child: Text('Get the card token'),
           onPressed: () async {
             try {
-              final String token = await widget.kushki.requestToken(_card, totalAmount);
+              final String token =
+                  await widget.kushki.requestToken(_card, totalAmount);
               setState(() {
                 _cardToken = token;
               });
