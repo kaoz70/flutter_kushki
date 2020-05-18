@@ -10,7 +10,7 @@
     
 ```dart
 dependencies:
-    flutter_kushki: ^0.0.2
+    flutter_kushki: ^0.0.3
 ```
 
 2. Import the package
