@@ -10,12 +10,14 @@
     
 ```dart
 dependencies:
-    flutter_kushki: ^0.0.4
+    flutter_kushki: ^0.0.5
 ```
 
 2. Import the package
 ```dart
-import 'package:flutter_credit_card/flutter_credit_card.dart';
+import 'package:flutter_kushki/kushki.dart'; // Main class
+import 'package:flutter_kushki/kushki_environment.dart'; // Environments
+import 'package:flutter_kushki/kushki_card.dart'; // Card model
 ```
 
 ## Usage
@@ -23,7 +25,6 @@ import 'package:flutter_credit_card/flutter_credit_card.dart';
 #### Instantiate the class
 
 ```dart
-
     kushki = new Kushki(
       '<your_merchant_id>',
       currency: 'USD',
@@ -34,7 +35,6 @@ import 'package:flutter_credit_card/flutter_credit_card.dart';
 #### Create the card data
 
 ```dart
-
     final _card = KushkiCard();
     _card.name = 'Kushki Test';
     _card.number = '4381082002222866';
@@ -46,7 +46,6 @@ import 'package:flutter_credit_card/flutter_credit_card.dart';
 #### Get the card token
 
 ```dart
-
     try {
       final String token = await kushki.requestToken(_card, 30.52);
       print(token);

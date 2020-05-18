@@ -1,3 +1,7 @@
+## 0.0.5
+
+* Documentation fixes
+
 ## 0.0.4
 
 * File format changes
