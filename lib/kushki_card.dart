@@ -4,7 +4,6 @@ class KushkiCard {
   String cvv;
   String expiryMonth;
   String expiryYear;
-  double totalAmount;
 
   Map<String, dynamic> toMap() => {
     'name': name,
@@ -12,6 +11,5 @@ class KushkiCard {
     'cvv': cvv,
     'expiryMonth': expiryMonth,
     'expiryYear': expiryYear,
-    'totalAmount': totalAmount,
   };
 }

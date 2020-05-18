@@ -3,10 +3,9 @@ import 'package:flutter_credit_card/credit_card_model.dart';
 import 'dart:async';
 
 import 'package:flutter_credit_card/flutter_credit_card.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_kushki/kushki.dart';
-import 'package:flutter_kushki/Card.dart';
-import 'package:flutter_kushki/environments.dart';
+import 'package:flutter_kushki/kushki_environment.dart';
+import 'package:flutter_kushki/kushki_card.dart';
 
 void main() => runApp(MyApp());
 
@@ -17,10 +16,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   Kushki _kushki;
-  String _platformVersion = 'Unknown';
-  String _errorMessage;
   TextEditingController _merchantIdController;
-
 
   @override
   void initState() {
@@ -28,34 +24,13 @@ class _MyAppState extends State<MyApp> {
     _merchantIdController = TextEditingController();
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initKushki(BuildContext context) async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    try {
-      _errorMessage = null;
-      _kushki = new Kushki(
-          publicMerchantId: _merchantIdController.text,
-          currency: 'USD',
-          environment: KushkiEnvironment.TESTING,
-          regional: false
-      );
-
-      await _kushki.init;
-      platformVersion = await _kushki.platformVersion;
-    } on PlatformException catch (e) {
-      print(e);
-      _kushki = null;
-      _errorMessage = e.message;
-    }
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-
     setState(() {
-      _platformVersion = platformVersion;
+      _kushki = new Kushki(
+        _merchantIdController.text,
+        currency: 'USD',
+        environment: KushkiEnvironment.TESTING,
+      );
     });
   }
 
@@ -90,13 +65,10 @@ class _MyAppState extends State<MyApp> {
                   initKushki(context);
                 },
               ),
-              _errorMessage != null ? Text(_errorMessage) : Container(),
-              _kushki != null ? Text('Running on: $_platformVersion\n') : Container(),
               _kushki != null ? Form(kushki: _kushki,) : Container(),
             ],
           ),
         ),
-        //body: Form(kushki: kushki,),
       ),
     );
   }
@@ -113,6 +85,7 @@ class Form extends StatefulWidget {
 
 class _FormState extends State<Form> {
   final _card = KushkiCard();
+  final totalAmount = 30.52;
   _FormState();
   String _cardToken;
 
@@ -127,14 +100,12 @@ class _FormState extends State<Form> {
     _card.cvv = '633';
     _card.expiryMonth = '07';
     _card.expiryYear = '21';
-    _card.totalAmount = 30.52;
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        widget.kushki.isInitialized ? Text('Kushki is initialized') : Text('Kushki is not initialized'),
         CreditCardWidget(
           cardNumber: _card.number,
           expiryDate: '${_card.expiryMonth}/${_card.expiryYear}',
@@ -150,7 +121,7 @@ class _FormState extends State<Form> {
           child: Text('Get the card token'),
           onPressed: () async {
             try {
-              final String token = await widget.kushki.requestToken(_card);
+              final String token = await widget.kushki.requestToken(_card, totalAmount);
               setState(() {
                 _cardToken = token;
               });
@@ -160,7 +131,7 @@ class _FormState extends State<Form> {
                   backgroundColor: Colors.blue,
                 ),
               );
-            } on PlatformException catch (e) {
+            } catch (e) {
               print(e.toString());
               Scaffold.of(context).showSnackBar(
                 SnackBar(
@@ -173,7 +144,7 @@ class _FormState extends State<Form> {
         ),
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Text(_cardToken ?? 'Here goes the card token'),
+          child: Text(_cardToken ?? 'Card token result from API'),
         ),
       ],
     );

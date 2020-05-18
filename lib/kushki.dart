@@ -1,47 +1,44 @@
 import 'dart:async';
 
-import 'package:flutter/services.dart';
+import 'dart:convert' as convert;
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
-import 'Card.dart';
-import 'environments.dart';
+import 'kushki_card.dart';
+import 'kushki_environment.dart';
 
 class Kushki {
-  static const MethodChannel _channel = const MethodChannel('flutter_kushki');
   final String publicMerchantId;
   final String currency;
   final KushkiEnvironment environment;
-  final bool regional;
-  bool isInitialized = false;
+  final productionUrl = 'https://api.kushkipagos.com/';
+  final testingUrl = 'https://api-uat.kushkipagos.com/';
 
-  Kushki({
-    this.publicMerchantId,
-    this.currency,
-    this.environment,
-    this.regional
-  }) :
-        assert(publicMerchantId != null),
-        assert(currency != null),
-        assert(environment != null),
-        assert(regional != null);
+  String get url => environment == KushkiEnvironment.PRODUCTION
+          ? productionUrl
+          : testingUrl;
 
-  Future<bool> get init async {
-    final bool initialized = await _channel.invokeMethod('init', <String, dynamic>{
-      'publicMerchantId': publicMerchantId,
-      'currency': currency,
-      'environment': environment.toString().substring(environment.toString().indexOf('.')+1),
-      'regional': regional,
-    });
+  Kushki(this.publicMerchantId, {this.currency, this.environment})
+      : assert(publicMerchantId != null), assert(environment != null);
 
-    isInitialized = initialized;
-    return isInitialized;
-  }
+  Future<String> requestToken(KushkiCard card, double amount) async {
+    final response = await http.post('${url}card/v1/tokens',
+      headers: {
+        'Public-Merchant-Id': publicMerchantId,
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(<String, dynamic>{
+        'card': card.toMap(),
+        'totalAmount': amount,
+        'currency': currency,
+      }),
+    );
 
-  Future<String> requestToken(KushkiCard card) async {
-    return await _channel.invokeMethod('requestToken', card.toMap());
-  }
-
-  Future<String> get platformVersion async {
-    final String version = await _channel.invokeMethod('getPlatformVersion');
-    return version;
+    if (response.statusCode < 400) {
+      final jsonResponse = convert.jsonDecode(response.body);
+      return jsonResponse['token'];
+    } else {
+      throw Exception('${response.body}');
+    }
   }
 }

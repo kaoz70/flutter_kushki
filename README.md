@@ -24,18 +24,11 @@ import 'package:flutter_credit_card/flutter_credit_card.dart';
 
 ```dart
 
-    try {
-      kushki = new Kushki(
-          publicMerchantId: '<your_merchant_id>',
-          currency: 'USD',
-          environment: KushkiEnvironment.TESTING,
-          regional: false
-      );
-
-      await kushki.init;
-    } on PlatformException {
-      print('Failied to instantiate class');
-    }
+    kushki = new Kushki(
+      '<your_merchant_id>',
+      currency: 'USD',
+      environment: KushkiEnvironment.TESTING,
+    );
 ```
 
 #### Create the card data
@@ -48,7 +41,6 @@ import 'package:flutter_credit_card/flutter_credit_card.dart';
     _card.cvv = '633';
     _card.expiryMonth = '07';
     _card.expiryYear = '21';
-    _card.totalAmount = 30.52;
 ```
 
 #### Get the card token
@@ -56,9 +48,9 @@ import 'package:flutter_credit_card/flutter_credit_card.dart';
 ```dart
 
     try {
-      final transaction = await kushki.requestToken(_card);
-      print(transaction);
-    } on PlatformException catch (e) {
+      final String token = await kushki.requestToken(_card, 30.52);
+      print(token);
+    } catch (e) {
       print(e.toString());
     }
 ```
