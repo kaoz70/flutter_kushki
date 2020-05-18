@@ -26,7 +26,7 @@ import 'package:flutter_kushki/kushki_card.dart'; // Card model
 
 ```dart
     kushki = new Kushki(
-      '<your_merchant_id>',
+      '<your_public_merchant_id>',
       currency: 'USD',
       environment: KushkiEnvironment.TESTING,
     );
