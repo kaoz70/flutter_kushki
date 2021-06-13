@@ -1,6 +1,7 @@
 ## 0.0.6
 
 * Chore: Updated HTTP dependency
+* Chore: Added MIT license Miguel Suarez 10 minutes ago
 * Feature: Updated to Flutter NUll safety
 
 ## 0.0.5
