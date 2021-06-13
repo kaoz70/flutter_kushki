@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
+// import 'package:flutter_kushki/kushki.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_kushki/flutter_kushki.dart';
 
 void main() {
   const MethodChannel channel = MethodChannel('flutter_kushki');
@@ -17,7 +17,8 @@ void main() {
     channel.setMockMethodCallHandler(null);
   });
 
-  test('getPlatformVersion', () async {
-    expect(await FlutterKushki.platformVersion, '42');
-  });
+  // TODO: create test methods
+  // test('getPlatformVersion', () async {
+  //   expect(await Kushki.platformVersion, '42');
+  // });
 }

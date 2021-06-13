@@ -9,7 +9,7 @@ import 'kushki_environment.dart';
 /// Main Kushki class for gateway transactions
 class Kushki {
   final String publicMerchantId;
-  final String currency;
+  final String? currency;
   final KushkiEnvironment environment;
   final productionUrl = 'https://api.kushkipagos.com/';
   final testingUrl = 'https://api-uat.kushkipagos.com/';
@@ -17,13 +17,13 @@ class Kushki {
   String get url =>
       environment == KushkiEnvironment.PRODUCTION ? productionUrl : testingUrl;
 
-  Kushki(this.publicMerchantId, {this.currency, this.environment})
+  Kushki(this.publicMerchantId, {this.currency, required this.environment})
       : assert(publicMerchantId != null),
         assert(environment != null);
 
   /// Get the card's token, use this to make charges via some backend
   /// using your private merchant id
-  Future<String> requestToken(KushkiCard card, double amount) async {
+  Future<String?> requestToken(KushkiCard card, double amount) async {
     final response = await http.post(
       Uri.parse('${url}card/v1/tokens'),
       headers: {

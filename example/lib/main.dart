@@ -88,7 +88,7 @@ class Form extends StatefulWidget {
 }
 
 class _FormState extends State<Form> {
-  final _card = KushkiCard();
+  final KushkiCard _card = KushkiCard();
   final totalAmount = 30.52;
   _FormState();
   String _cardToken;
