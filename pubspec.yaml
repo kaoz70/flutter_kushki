@@ -1,6 +1,6 @@
 name: flutter_kushki
 description: This package provides a Flutter Kushki payment gateway integration for developers.
-version: 0.0.5
+version: 0.0.6
 homepage: https://github.com/kaoz70/flutter_kushki
 
 environment:
@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  http: ^0.12.1
+  http: ^0.13.3
 
 dev_dependencies:
   flutter_test:

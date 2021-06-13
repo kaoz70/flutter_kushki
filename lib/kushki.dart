@@ -25,7 +25,7 @@ class Kushki {
   /// using your private merchant id
   Future<String> requestToken(KushkiCard card, double amount) async {
     final response = await http.post(
-      '${url}card/v1/tokens',
+      Uri.parse('${url}card/v1/tokens'),
       headers: {
         'Public-Merchant-Id': publicMerchantId,
         'Content-Type': 'application/json',
