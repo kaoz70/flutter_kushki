@@ -1,3 +1,8 @@
+## 0.0.6
+
+* Chore: Updated HTTP dependency
+* Feature: Updated to Flutter NUll safety
+
 ## 0.0.5
 
 * Documentation fixes
